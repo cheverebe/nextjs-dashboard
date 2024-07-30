@@ -5,6 +5,11 @@ import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
+import { signIn } from '@/auth';
+import { AuthError } from 'next-auth';
+import bcrypt from 'bcrypt';
+import { RegisterState } from '../ui/auth/register-form';
+
 const FormSchema = z.object({
   id: z.string(),
   customerId: z.string({
@@ -122,3 +127,67 @@ export type State = {
   };
   message?: string | null;
 };
+
+export async function authenticate(
+  prevState: any | undefined,
+  formData: FormData,
+) {
+  console.log('calling authenticate');
+  try {
+    await signIn('credentials', formData);
+  } catch (error) {
+    if (error instanceof AuthError) {
+      switch (error.type) {
+        case 'CredentialsSignin':
+          return 'Invalid credentials.';
+        default:
+          return 'Something went wrong.';
+      }
+    }
+    throw error;
+  }
+}
+
+const UserSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  email: z.string(),
+  password: z.string(),
+});
+
+const CreateUser = UserSchema.omit({ id: true });
+
+export async function createUser(prevState: RegisterState, formData: FormData) {
+  // Validate form fields using Zod
+  const validatedFields = CreateUser.safeParse({
+    name: formData.get('name'),
+    email: formData.get('email'),
+    password: formData.get('password'),
+  });
+  // If form validation fails, return errors early. Otherwise, continue.
+  if (!validatedFields.success) {
+    console.log(validatedFields.error.flatten().fieldErrors);
+    console.log('------------------------------------------------');
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to Create User.',
+    };
+  }
+  const { name, email, password } = CreateUser.parse(validatedFields.data);
+  const passwordHash = await bcrypt.hash(password, 10);
+  const dateStr = new Date().toISOString();
+
+  try {
+    await sql`
+    INSERT INTO users (name, email, password)
+    VALUES (${name}, ${email}, ${passwordHash})
+  `;
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+  revalidatePath('/home');
+  redirect('/home');
+}
