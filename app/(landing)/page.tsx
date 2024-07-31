@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { createLead } from "../lib/actions"
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline"
+import { toast } from 'react-hot-toast';
 
 export type LeadState = {
   error?: string | null;
@@ -25,6 +26,7 @@ export default function Page() {
   const formAction = async (data: FormData) => {
     setLeadState((prev) => ({ ...prev, pending: true }));
     const response = await createLead(leadState, data);
+    toast.success('Thanks for signing up!');
     myFormRef?.current?.reset();
     return response;
   };
