@@ -9,6 +9,7 @@ import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
 import bcrypt from 'bcrypt';
 import { RegisterState } from '../ui/auth/register-form';
+import { LeadState } from '../(landing)/page';
 
 const FormSchema = z.object({
   id: z.string(),
@@ -175,7 +176,6 @@ export async function createUser(prevState: RegisterState, formData: FormData) {
   }
   const { name, email, password } = CreateUser.parse(validatedFields.data);
   const passwordHash = await bcrypt.hash(password, 10);
-  const dateStr = new Date().toISOString();
 
   try {
     await sql`
@@ -190,4 +190,42 @@ export async function createUser(prevState: RegisterState, formData: FormData) {
   }
   revalidatePath('/home');
   redirect('/home');
+}
+
+const LeadSchema = z.object({
+  id: z.string(),
+  email: z.string(),
+  source: z.string(),
+});
+
+const CreateLead = LeadSchema.omit({ id: true, source: true });
+
+export async function createLead(prevState: LeadState, formData: FormData) {
+  // Validate form fields using Zod
+  const validatedFields = CreateLead.safeParse({
+    email: formData.get('email'),
+  });
+  // If form validation fails, return errors early. Otherwise, continue.
+  if (!validatedFields.success) {
+    console.log(validatedFields.error.flatten().fieldErrors);
+    console.log('------------------------------------------------');
+    return {
+      error: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to Create Lead.',
+    };
+  }
+  const { email } = CreateLead.parse(validatedFields.data);
+
+  try {
+    await sql`
+    INSERT INTO leads (email)
+    VALUES (${email})
+  `;
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+  redirect('/');
 }
