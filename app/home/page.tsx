@@ -1,3 +1,4 @@
+'use client'
 
 import Link from "next/link"
 import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet"
@@ -8,9 +9,13 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table"
 import { Separator } from "@/components/ui/separator"
 import { CopyIcon, ExpandIcon, FilePenIcon, InfoIcon, MenuIcon, NewspaperIcon, PlayIcon, SearchIcon, SendIcon, SettingsIcon, TrashIcon } from "@/lib/icons"
-import { signOut } from "@/auth"
+import { useSession } from "next-auth/react"
+import { closeSession } from "../lib/actions"
 
 export default function Page() {
+  const { data: session, status } = useSession();
+  console.log(session);
+
   return (
       <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
         <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
@@ -75,7 +80,7 @@ export default function Page() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end"  className="bg-white">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuLabel>{session?.user?.name}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>Settings</DropdownMenuItem>
               <DropdownMenuItem>Support</DropdownMenuItem>
@@ -83,8 +88,7 @@ export default function Page() {
               <DropdownMenuItem>
                 <form
                   action={async () => {
-                    'use server';
-                    await signOut();
+                    await closeSession();
                   }}
                 >
                   <button type="submit">Logout</button>

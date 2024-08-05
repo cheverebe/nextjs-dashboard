@@ -2,6 +2,7 @@ import '@/app/ui/global.css';
 import { inter } from '@/app/ui/fonts';
 import { Toaster } from "react-hot-toast";
 import { Metadata } from 'next';
+import { SessionProvider } from 'next-auth/react';
 
 export const metadata: Metadata = {
   title: {
@@ -13,15 +14,17 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({
-  children,
+  children
 }: {
   children: React.ReactNode;
 }) {
   return (
     <html lang="en">
       <body className={`${inter.className} antialiased`}>
-        <Toaster position="bottom-center" />
-        {children}
+          <Toaster position="bottom-center" />
+          <SessionProvider>
+            {children}
+          </SessionProvider>
       </body>
     </html>
   );

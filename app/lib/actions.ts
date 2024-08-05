@@ -5,11 +5,14 @@ import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
-import { signIn } from '@/auth';
+import { signIn, signOut } from '@/auth';
 import { AuthError } from 'next-auth';
 import bcrypt from 'bcrypt';
 import { RegisterState } from '../ui/auth/register-form';
 import { LeadState } from '../(landing)/page';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 const FormSchema = z.object({
   id: z.string(),
@@ -149,6 +152,23 @@ export async function authenticate(
   }
 }
 
+export async function closeSession() {
+  console.log('calling logout');
+  try {
+    await signOut();
+  } catch (error) {
+    if (error instanceof AuthError) {
+      switch (error.type) {
+        case 'SignOutError':
+          return 'Error signing out.';
+        default:
+          return 'Something went wrong.';
+      }
+    }
+    throw error;
+  }
+}
+
 const UserSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -178,10 +198,9 @@ export async function createUser(prevState: RegisterState, formData: FormData) {
   const passwordHash = await bcrypt.hash(password, 10);
 
   try {
-    await sql`
-    INSERT INTO users (name, email, password)
-    VALUES (${name}, ${email}, ${passwordHash})
-  `;
+    await prisma.user.create({
+      data: { name, email, password: passwordHash },
+    });
   } catch (error) {
     return {
       success: false,
@@ -217,10 +236,12 @@ export async function createLead(prevState: LeadState, formData: FormData) {
   const { email } = CreateLead.parse(validatedFields.data);
 
   try {
-    await sql`
-    INSERT INTO leads (email)
-    VALUES (${email})
-  `;
+    await prisma.lead.create({
+      data: {
+        email,
+        source: 'web',
+      },
+    });
   } catch (error) {
     return {
       success: false,

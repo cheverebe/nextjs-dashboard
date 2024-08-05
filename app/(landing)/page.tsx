@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { createLead } from "../lib/actions"
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline"
 import { toast } from 'react-hot-toast';
+import { useSession } from "next-auth/react"
 
 export type LeadState = {
   error?: string | null;
@@ -22,6 +23,8 @@ export default function Page() {
   const initialState: LeadState = { pending: false, error: null };
   const [leadState, setLeadState] = useState(initialState);
   const myFormRef: RefObject<HTMLFormElement> = React.createRef();
+
+  const { data: session, status } = useSession()
   
   const formAction = async (data: FormData) => {
     setLeadState((prev) => ({ ...prev, pending: true }));
@@ -64,12 +67,14 @@ export default function Page() {
           </Link>
         </nav>
         <div className="hidden lg:flex items-center gap-2">
+          {session?.user ? <Link href="/home" prefetch={false} className="text-sm font-medium hover:underline underline-offset-4 mr-4">Home</Link> : <>
           <Link href="/register" className="text-sm font-medium mr-4" prefetch={false}>
             <Button>Get started</Button>
           </Link>
           <Link href="/login" className="text-sm font-medium hover:underline underline-offset-4 mr-4" prefetch={false}>
             Log in
           </Link>
+          </>}
         </div>
       </header>
       <main className="flex-1">
@@ -87,7 +92,7 @@ export default function Page() {
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
                   <Link
-                    href="#"
+                    href="/register"
                     className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-8 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
                     prefetch={false}
                   >
@@ -196,7 +201,7 @@ export default function Page() {
                 </CardContent>
                 <CardFooter>
                   <Link
-                    href="#"
+                    href="/register"
                     className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-8 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
                     prefetch={false}
                   >
@@ -237,7 +242,7 @@ export default function Page() {
                 </CardContent>
                 <CardFooter>
                   <Link
-                    href="#"
+                    href="/register"
                     className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-8 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
                     prefetch={false}
                   >
@@ -278,7 +283,7 @@ export default function Page() {
                 </CardContent>
                 <CardFooter>
                   <Link
-                    href="#"
+                    href="/register"
                     className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-8 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
                     prefetch={false}
                   >

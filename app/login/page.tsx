@@ -1,4 +1,4 @@
-import { ArrowLeftIcon, NewspaperIcon } from '@/lib/icons';
+import { ArrowLeftIcon } from '@/lib/icons';
 import Link from 'next/link';
 import LoginForm from '../ui/auth/login-form';
 import AuthBranding from '../ui/auth/branding';
