@@ -51,15 +51,15 @@ export default function Page() {
                       </TableRow>
                     )}
                     {newsletters.map((newsletter) => (
-                      <TableRow>
-                      <TableCell>
+                      <TableRow key={newsletter.id}>
+                      <TableCell key="name">
                         <div className="font-medium">{newsletter.name}</div>
                         <div className="hidden text-sm text-muted-foreground md:inline">Tech, Business, Design</div>
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell">Tech, Business, Design</TableCell>
-                      <TableCell className="hidden sm:table-cell">Weekly</TableCell>
-                      <TableCell className="hidden md:table-cell">10,000</TableCell>
-                      <TableCell className="text-right">
+                      <TableCell key="sources" className="hidden sm:table-cell">Tech, Business, Design</TableCell>
+                      <TableCell key="frequency" className="hidden sm:table-cell">Weekly</TableCell>
+                      <TableCell key="recipients" className="hidden md:table-cell">10,000</TableCell>
+                      <TableCell key="actions" className="text-right">
                         <Button size="icon" variant="outline" className="h-8 w-8">
                           <FilePenIcon className="h-4 w-4" />
                           <span className="sr-only">Edit</span>
