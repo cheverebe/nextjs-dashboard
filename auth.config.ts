@@ -25,15 +25,12 @@ export const authConfig = {
       return true;
     },
     async jwt({ token, user }) {
-      console.log('JWT Callback', { token, user });
       if (user) {
         token.id = user.id;
       }
       return token;
     },
     async session({ session, token }) {
-      console.log('Session Callback', { session });
-      console.log('Token', { token });
       session.user.id = typeof token.id === 'string' ? token.id : '';
       return session;
     },

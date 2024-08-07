@@ -8,9 +8,8 @@ import { redirect } from 'next/navigation';
 import { signIn, signOut } from '@/auth';
 import { AuthError } from 'next-auth';
 import bcrypt from 'bcrypt';
-import { RegisterState } from '../ui/auth/register-form';
-import { LeadState } from '../(landing)/page';
 import { PrismaClient } from '@prisma/client';
+import { BaseRequestState, NewsletterState } from './utils';
 
 const prisma = new PrismaClient();
 
@@ -153,7 +152,6 @@ export async function authenticate(
 }
 
 export async function closeSession() {
-  console.log('calling logout');
   try {
     await signOut();
   } catch (error) {
@@ -178,7 +176,10 @@ const UserSchema = z.object({
 
 const CreateUser = UserSchema.omit({ id: true });
 
-export async function createUser(prevState: RegisterState, formData: FormData) {
+export async function createUser(
+  prevState: BaseRequestState,
+  formData: FormData,
+) {
   // Validate form fields using Zod
   const validatedFields = CreateUser.safeParse({
     name: formData.get('name'),
@@ -219,15 +220,16 @@ const LeadSchema = z.object({
 
 const CreateLead = LeadSchema.omit({ id: true, source: true });
 
-export async function createLead(prevState: LeadState, formData: FormData) {
+export async function createLead(
+  prevState: BaseRequestState,
+  formData: FormData,
+) {
   // Validate form fields using Zod
   const validatedFields = CreateLead.safeParse({
     email: formData.get('email'),
   });
   // If form validation fails, return errors early. Otherwise, continue.
   if (!validatedFields.success) {
-    console.log(validatedFields.error.flatten().fieldErrors);
-    console.log('------------------------------------------------');
     return {
       error: validatedFields.error.flatten().fieldErrors,
       message: 'Missing Fields. Failed to Create Lead.',
@@ -249,4 +251,59 @@ export async function createLead(prevState: LeadState, formData: FormData) {
     };
   }
   redirect('/');
+}
+
+const NewsletterSchema = z.object({
+  id: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  name: z.string().min(3),
+  frequency: z.enum(['DAILY', 'WEEKLY', 'MONTHLY']),
+  ownerId: z.string(),
+});
+
+const CreateNewsletter = NewsletterSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export async function createNewsletter(
+  prevState: NewsletterState,
+  formData: FormData,
+): Promise<NewsletterState> {
+  console.log('formData', formData);
+  // Validate form fields using Zod
+  const validatedFields = CreateNewsletter.safeParse({
+    name: formData.get('name'),
+    ownerId: formData.get('ownerId'),
+    frequency: formData.get('frequency'),
+  });
+  console.log('validatedFields', validatedFields);
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+    };
+  }
+
+  try {
+    await prisma.newsletter.create({
+      data: CreateNewsletter.parse(validatedFields.data),
+    });
+  } catch (error) {
+    return {
+      generalError: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+  revalidatePath('/home');
+  redirect('/home');
+}
+
+export async function getNewsletters() {
+  try {
+    return await prisma.newsletter.findMany();
+  } catch (error) {
+    console.error('Failed to fetch newsletters:', error);
+    throw new Error('Failed to fetch newsletters.');
+  }
 }

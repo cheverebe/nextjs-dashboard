@@ -6,6 +6,7 @@ import { authenticate } from '@/app/lib/actions';
 import { useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { toast } from 'react-hot-toast';
 
 export type State = {
   error?: string | null;
@@ -20,6 +21,8 @@ export default function LoginForm() {
     const response = await authenticate(state, data);
     if (response) {
       setState((prev) => ({ pending: false, error: response }));
+    }else{
+      toast.success('Successfully logged in!');
     }
     return response;
   };

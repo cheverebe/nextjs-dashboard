@@ -36,7 +36,6 @@ export const authHandler = NextAuth({
             return user;
           }
         }
-        console.log('Invalid credentials');
         return null;
       },
     }),

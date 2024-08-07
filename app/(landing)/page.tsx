@@ -24,7 +24,7 @@ export default function Page() {
   const [leadState, setLeadState] = useState(initialState);
   const myFormRef: RefObject<HTMLFormElement> = React.createRef();
 
-  const { data: session, status } = useSession()
+  const { data: session } = useSession()
   
   const formAction = async (data: FormData) => {
     setLeadState((prev) => ({ ...prev, pending: true }));

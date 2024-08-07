@@ -1,5 +1,23 @@
 import { Revenue } from './definitions';
 
+export type BaseRequestState = {
+  error?: string | null;
+  pending?: boolean;
+}
+
+export type BaseEditState = {
+  errors?: any;
+  pending?: boolean;
+  generalError?: string;
+}
+
+export interface NewsletterState extends BaseEditState {
+    errors?:{
+        name?: string[];
+        frequency?: string[];
+    }
+}
+
 export const formatCurrency = (amount: number) => {
   return (amount / 100).toLocaleString('en-US', {
     style: 'currency',
