@@ -1,6 +1,6 @@
 import '@/app/ui/global.css';
 import { inter } from '@/app/ui/fonts';
-import { Toaster } from "react-hot-toast";
+import { Toaster } from 'react-hot-toast';
 import { Metadata } from 'next';
 import { SessionProvider } from 'next-auth/react';
 
@@ -14,17 +14,22 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({
-  children
+  children,
 }: {
   children: React.ReactNode;
 }) {
   return (
     <html lang="en">
+      <head>
+        <link
+          rel="stylesheet"
+          href="https://captureecho.com/captureecho.min.css"
+        />
+        <script src="https://captureecho.com/captureecho.min.js" />
+      </head>
       <body className={`${inter.className} antialiased`}>
-          <Toaster position="bottom-center" />
-          <SessionProvider>
-            {children}
-          </SessionProvider>
+        <Toaster position="bottom-center" />
+        <SessionProvider>{children}</SessionProvider>
       </body>
     </html>
   );
