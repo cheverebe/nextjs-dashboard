@@ -25,7 +25,7 @@ export default function RootLayout({
           rel="stylesheet"
           href="https://captureecho.com/captureecho.min.css"
         />
-        <script src="https://captureecho.com/captureecho.min.js" />
+        <script src="https://captureecho.com/captureecho.min.js" async />
       </head>
       <body className={`${inter.className} antialiased`}>
         <Toaster position="bottom-center" />
