@@ -10,7 +10,7 @@ import { AuthError } from 'next-auth';
 import bcrypt from 'bcrypt';
 import { PrismaClient } from '@prisma/client';
 import { BaseRequestState, NewsletterState } from './utils';
-import { send_email } from '../services/email-service';
+import { send_email, send_new_lead_email } from '../services/email-service';
 
 const prisma = new PrismaClient();
 
@@ -251,13 +251,7 @@ export async function createLead(
       error: error instanceof Error ? error.message : 'Unknown error',
     };
   }
-  send_email(
-    'no-reply@tailormadenews.com',
-    'hello@tailormadenews.com',
-    'New Lead Signed up!',
-    `There is a new lead signed up! ${email}`,
-    `There is a new lead signed up! ${email}`,
-  );
+  send_new_lead_email(email);
   redirect('/');
 }
 
