@@ -9,7 +9,7 @@ export const authConfig = {
       const isLoggedIn = !!auth?.user;
       const isOnDashboard =
         nextUrl.pathname.startsWith('/dashboard') ||
-        nextUrl.pathname.startsWith('/home');
+        nextUrl.pathname.startsWith('/newsletters');
 
       if (isOnDashboard) {
         if (isLoggedIn) {
@@ -19,7 +19,7 @@ export const authConfig = {
       }
 
       if (isLoggedIn) {
-        return Response.redirect(new URL('/home', nextUrl));
+        return Response.redirect(new URL('/newsletters', nextUrl));
       }
 
       return true;

@@ -209,8 +209,8 @@ export async function createUser(
       error: error instanceof Error ? error.message : 'Unknown error',
     };
   }
-  revalidatePath('/home');
-  redirect('/home');
+  revalidatePath('/newsletters');
+  redirect('/newsletters');
 }
 
 const LeadSchema = z.object({
@@ -281,7 +281,7 @@ export async function createNewsletter(
     ownerId: formData.get('ownerId'),
     frequency: formData.get('frequency'),
   });
-  console.log('validatedFields', validatedFields);
+
   if (!validatedFields.success) {
     return {
       errors: validatedFields.error.flatten().fieldErrors,
@@ -297,8 +297,40 @@ export async function createNewsletter(
       generalError: error instanceof Error ? error.message : 'Unknown error',
     };
   }
-  revalidatePath('/home');
-  redirect('/home');
+  revalidatePath('/newsletters');
+  redirect('/newsletters');
+}
+
+export async function updateNewsletter(
+  prevState: NewsletterState,
+  id: string,
+  formData: FormData,
+): Promise<NewsletterState> {
+  console.log('formData', formData);
+  // Validate form fields using Zod
+  const validatedFields = CreateNewsletter.safeParse({
+    name: formData.get('name'),
+    ownerId: formData.get('ownerId'),
+    frequency: formData.get('frequency'),
+  });
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+    };
+  }
+
+  try {
+    await prisma.newsletter.update({
+      where: { id },
+      data: CreateNewsletter.parse(validatedFields.data),
+    });
+  } catch (error) {
+    return {
+      generalError: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+  revalidatePath('/newsletters');
+  redirect('/newsletters');
 }
 
 export async function getNewsletters() {
@@ -306,6 +338,15 @@ export async function getNewsletters() {
     return await prisma.newsletter.findMany();
   } catch (error) {
     console.error('Failed to fetch newsletters:', error);
+    throw new Error('Failed to fetch newsletters.');
+  }
+}
+
+export async function getNewsletterById(id: string) {
+  try {
+    return await prisma.newsletter.findUnique({ where: { id } });
+  } catch (error) {
+    console.error('Failed to fetch newsletter:', error);
     throw new Error('Failed to fetch newsletters.');
   }
 }
