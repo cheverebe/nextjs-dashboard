@@ -6,7 +6,7 @@ import { NewsletterSubscription } from '@/components/NewsletterSubscription';
 async function getArticles(page: number): Promise<ApiResponse<Article>> {
   return (
     await axios.get(
-      process.env.BECKEND_URL +
+      process.env.BACKEND_URL +
         '/api/news/newsletters/1/articles/?page=' +
         page,
     )
